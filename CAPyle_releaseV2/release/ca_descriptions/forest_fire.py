@@ -16,9 +16,11 @@ from capyle.ca import Grid2D, Neighbourhood, CAConfig, randomise2d
 import capyle.utils as utils
 import numpy as np
 
-from enum import Enum
+import random
+from enum import IntEnum
 
-class Tile(Enum):
+# IntEnums compare to Ints, i.e. Tile.LAKE == 0
+class Tile(IntEnum):
     LAKE = 0
     
     CHAPARREL = 1
@@ -33,8 +35,11 @@ class Tile(Enum):
     FOREST_BURNT      = 8
     SCRUB_BURNT       = 9
 
-    def burn(s):
+    def ignite(s):
         return s + 3
+
+    def flammable(t):
+        return t == CHAPARREL or t == FOREST or t == SCRUB
 
 colours = {
         Tile.LAKE         : (0.239, 0.69, 0.941),
@@ -42,6 +47,22 @@ colours = {
         Tile.FOREST       : (0.31, 0.384, 0.153),
         Tile.SCRUB        : (0.996, 1, 0)
     }
+
+# flammability affects how easily a terrain type catches
+# higher is more flammable
+flammability = {
+    Tile.CHAPARREL  : 0.2,
+    Tile.FOREST     : 0.05,
+    Tile.SCRUB      : 1
+}    
+
+# extinguishing factor affects how long a terrain type burns
+# higher is more likely to go out
+extinguishing_factor = {
+    Tile.CHAPARREL_BURNING : 1/24,
+    Tile.FOREST_BURNING    : 1/72,
+    Tile.SCRUB_BURNING     : 1
+}
     
 def make_other_colours():
     for i in range(1,4):
@@ -50,20 +71,27 @@ def make_other_colours():
         # darken tiles to make them look burnt out
         colours[Tile(i+6)] = tuple([c * 0.25 for c in colours[Tile(i)]])
 
-
 def transition_func(grid, neighbourstates, neighbourcounts):
-    # dead = state == 0, live = state == 1
-    # unpack state counts for state 0 and state 1
-    dead_neighbours, live_neighbours = neighbourcounts
-    # create boolean arrays for the birth & survival rules
-    # if 3 live neighbours and is dead -> cell born
-    birth = (live_neighbours == 3) & (grid == 0)
-    # if 2 or 3 live neighbours and is alive -> survives
-    survive = ((live_neighbours == 2) | (live_neighbours == 3)) & (grid == 1)
-    # Set all cells to 0 (dead)
-    grid[:, :] = 0
-    # Set cells to 1 where either cell is born or survives
-    grid[birth | survive] = 1
+    
+    # mask 1: lake tiles remain lake
+    # we are going to note down the lake tiles at the start so we dont have to worry about them while we BURN
+    lake = (grid == Tile.LAKE)
+
+    # set tiles on fire
+    # get a map of how many burning neighbours each grid square has
+    burning_neighbour_count = np.add(
+        np.add(neighbourcounts[Tile.CHAPARREL_BURNING], neighbourcounts[Tile.FOREST_BURNING]),
+        neighbourcounts[Tile.SCRUB_BURNING])
+    print(f"{burning_neighbour_count=}")
+    # multiply each tile by a random 0..1, 
+    c = np.multiply(burning_neighbour_count, np.random.rand(*burning_neighbour_count.shape))
+
+    # all tiles where the resulting value is below the threshold probability are to be set on fire
+    for (t, f) in flammability.items(): 
+        grid = np.where((grid == t) & (c > 0) & (c < f), Tile.ignite(t), grid)
+
+    # put the lakes back
+    grid[lake] = Tile.LAKE
     return grid
 
 
@@ -71,7 +99,7 @@ def setup(args):
     config_path = args[0]
     config = utils.load(config_path)
     # ---THE CA MUST BE RELOADED IN THE GUI IF ANY OF THE BELOW ARE CHANGED---
-    config.title = "Conway's game of life"
+    config.title = "🔥🔥🔥"
     config.dimensions = 2
     config.states = tuple([s.value for s in Tile])
     # ------------------------------------------------------------------------
@@ -81,7 +109,7 @@ def setup(args):
     make_other_colours()
     config.state_colors = list(colours.values())
     # config.num_generations = 150
-    # config.grid_dims = (200,200)
+    config.grid_dims = (10,10)
 
     # ----------------------------------------------------------------------
 
