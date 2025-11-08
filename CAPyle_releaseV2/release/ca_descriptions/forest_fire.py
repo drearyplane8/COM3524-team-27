@@ -16,9 +16,9 @@ from capyle.ca import Grid2D, Neighbourhood, CAConfig, randomise2d
 import capyle.utils as utils
 import numpy as np
 
-from enum import IntEnum
+from enum import Enum
 
-class State(IntEnum):
+class Tile(Enum):
     LAKE = 0
     
     CHAPARREL = 1
@@ -36,6 +36,19 @@ class State(IntEnum):
     def burn(s):
         return s + 3
 
+colours = {
+        Tile.LAKE         : (0.239, 0.69, 0.941),
+        Tile.CHAPARREL    : (0.749, 0.749, 0),
+        Tile.FOREST       : (0.31, 0.384, 0.153),
+        Tile.SCRUB        : (0.996, 1, 0)
+    }
+    
+def make_other_colours():
+    for i in range(1,4):
+        # remove the green from on_fire tiles to make them look onfireyer (custom colours would be better)
+        colours[Tile(i+3)] = (colours[Tile(i)][0], 0, colours[Tile(i)][2])
+        # darken tiles to make them look burnt out
+        colours[Tile(i+6)] = tuple([c * 0.25 for c in colours[Tile(i)]])
 
 
 def transition_func(grid, neighbourstates, neighbourcounts):
@@ -60,12 +73,13 @@ def setup(args):
     # ---THE CA MUST BE RELOADED IN THE GUI IF ANY OF THE BELOW ARE CHANGED---
     config.title = "Conway's game of life"
     config.dimensions = 2
-    config.states = (0, 1)
+    config.states = tuple([s.value for s in Tile])
     # ------------------------------------------------------------------------
 
     # ---- Override the defaults below (these may be changed at anytime) ----
 
-    # config.state_colors = [(0,0,0),(1,1,1)]
+    make_other_colours()
+    config.state_colors = list(colours.values())
     # config.num_generations = 150
     # config.grid_dims = (200,200)
 
