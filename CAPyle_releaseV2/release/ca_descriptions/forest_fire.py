@@ -20,6 +20,22 @@ from enum import IntEnum
 
 class State(IntEnum):
     LAKE = 0
+    
+    CHAPARREL = 1
+    FOREST    = 2
+    SCRUB     = 3
+
+    CHAPARREL_BURNING = 4
+    FOREST_BURNING    = 5
+    SCRUB_BURNING     = 6
+
+    CHAPARREL_BURNT   = 7
+    FOREST_BURNT      = 8
+    SCRUB_BURNT       = 9
+
+    def burn(s):
+        return s + 3
+
 
 
 def transition_func(grid, neighbourstates, neighbourcounts):
