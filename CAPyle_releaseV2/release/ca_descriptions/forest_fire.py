@@ -16,6 +16,11 @@ from capyle.ca import Grid2D, Neighbourhood, CAConfig, randomise2d
 import capyle.utils as utils
 import numpy as np
 
+from enum import IntEnum
+
+class State(IntEnum):
+    LAKE = 0
+
 
 def transition_func(grid, neighbourstates, neighbourcounts):
     # dead = state == 0, live = state == 1
