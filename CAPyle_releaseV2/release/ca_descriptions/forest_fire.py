@@ -79,17 +79,15 @@ def transition_func(grid, neighbourstates, neighbourcounts):
 
     # set tiles on fire
     # get a map of how many burning neighbours each grid square has
-    burning_neighbour_count = np.add(
-        np.add(neighbourcounts[Tile.CHAPARREL_BURNING], neighbourcounts[Tile.FOREST_BURNING]),
-        neighbourcounts[Tile.SCRUB_BURNING])
-    print(f"{burning_neighbour_count=}")
+    burning_neighbour_count = neighbourcounts[Tile.CHAPARREL_BURNING] + neighbourcounts[Tile.FOREST_BURNING] + neighbourcounts[Tile.SCRUB_BURNING]
     # multiply each tile by a random 0..1, 
-    c = np.multiply(burning_neighbour_count, np.random.rand(*burning_neighbour_count.shape))
+    c = np.multiply(burning_neighbour_count, np.random.rand(*grid.shape))
 
     # all tiles where the resulting value is below the threshold probability are to be set on fire
     for (t, f) in flammability.items(): 
-        grid = np.where((grid == t) & (c > 0) & (c < f), Tile.ignite(t), grid)
-
+        flammable = (grid == t) & (c > 0)
+        grid[flammable] = Tile.ignite(t)
+    
     # put the lakes back
     grid[lake] = Tile.LAKE
     return grid
@@ -108,8 +106,8 @@ def setup(args):
 
     make_other_colours()
     config.state_colors = list(colours.values())
-    # config.num_generations = 150
-    config.grid_dims = (10,10)
+    config.num_generations = 2
+    config.grid_dims = (5,5)
 
     # ----------------------------------------------------------------------
 
