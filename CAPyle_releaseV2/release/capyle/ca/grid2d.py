@@ -151,6 +151,7 @@ class Grid2D(Grid):
             state_counts[i] = countg
         return state_counts
 
+    n = 0
     def step(self):
         """ Calculate the next timestep by applying the transistion function
         and save the new state to grid """
@@ -160,10 +161,17 @@ class Grid2D(Grid):
         # return n arrays where n is the number of states
         nc = self.count_neighbours(ns)
 
+        print(f"Before transition function: {self.n=}")
+        self.n += 1
+        print(f"{ns=}\n {nc=}")
+        print(f"{self.grid=}")
+        print(f"{self.wrapping_grid=}")
+
         # apply the user's transition function
         # passing in the states and counts to allow complex rules
         # if the user supplied any addition arguments, pass them here
         if self.additional_args is None:
+            
             self.grid = self.transition_func(self.grid, ns, nc)
         else:
             self.grid = self.transition_func(self.grid, ns, nc,

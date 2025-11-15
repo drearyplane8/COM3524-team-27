@@ -48,6 +48,7 @@ class Grid(object):
                                                dims=ca_config.dimensions)
 
     def run(self):
+        print("############################### STARTING NEW RUN ###############################")
         """Set up running the CA for given generations,
         saving each timestep to an array 'timeline'
 
