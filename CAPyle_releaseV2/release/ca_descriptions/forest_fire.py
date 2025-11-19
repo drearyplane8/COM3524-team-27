@@ -45,10 +45,16 @@ class Tile(IntEnum):
         return t == CHAPARREL or t == FOREST or t == SCRUB
 
 colours = {
-        Tile.LAKE         : (0.239, 0.69, 0.941),
-        Tile.CHAPARREL    : (0.749, 0.749, 0),
-        Tile.FOREST       : (0.31, 0.384, 0.153),
-        Tile.SCRUB        : (0.996, 1, 0)
+        Tile.LAKE              : (0.239, 0.69, 0.941),
+        Tile.CHAPARREL         : (0.749, 0.749, 0),
+        Tile.FOREST            : (0.31, 0.384, 0.153),
+        Tile.SCRUB             : (0.996, 1, 0),
+        Tile.CHAPARREL_BURNING : (0.8, 0.36, 0),
+        Tile.FOREST_BURNING    : (0.769, 0.149, 0.024),
+        Tile.SCRUB_BURNING     : (1, 0.753, 0),
+        Tile.CHAPARREL_BURNT   : (0.633, 0.576, 0.525),
+        Tile.FOREST_BURNT      : (0.267, 0.271, 0.259),
+        Tile.SCRUB_BURNT       : (0.435, 0.4, 0.294)
     }
 
 # flammability affects how easily a terrain type catches
@@ -67,12 +73,6 @@ extinguishing_factor = {
     Tile.SCRUB_BURNING     : 1
 }
     
-def make_other_colours():
-    for i in range(1,4):
-        # remove the green from on_fire tiles to make them look onfireyer (custom colours would be better)
-        colours[Tile(i+3)] = (colours[Tile(i)][0], 0, colours[Tile(i)][2])
-        # darken tiles to make them look burnt out
-        colours[Tile(i+6)] = tuple([c * 0.25 for c in colours[Tile(i)]])
 
 def transition_func(grid, neighbourstates, neighbourcounts):
 
@@ -115,12 +115,11 @@ def setup(args):
 
     # ---- Override the defaults below (these may be changed at anytime) ----
 
-    make_other_colours()
-#    config.state_colors = list(colours.values())
-    config.state_colors = [(0,0,0),
-                            (0.33, 0, 0), (0, 0.33, 0),  (0,0,0.33),
-                            (0.66,0,0), (0, 0.66, 0), (0, 0, 0.66),
-                            (1, 0, 0), (0, 1, 0), (0, 0, 1)]
+    config.state_colors = list(colours.values())
+#    config.state_colors = [(0,0,0), 
+#                            (0.33, 0, 0), (0, 0.33, 0),  (0,0,0.33),
+#                           (0.66,0,0), (0, 0.66, 0), (0, 0, 0.66),
+#                            (1, 0, 0), (0, 1, 0), (0, 0, 1)] # RGB colours are easiest to distinguish
     config.wrap = False
     # ----------------------------------------------------------------------
 
