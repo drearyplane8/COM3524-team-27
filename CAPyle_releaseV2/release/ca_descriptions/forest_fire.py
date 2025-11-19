@@ -85,8 +85,8 @@ def transition_func(grid, neighbourstates, neighbourcounts):
 
     # all tiles where the resulting value is below the threshold probability are to be set on fire
     for (t, f) in flammability.items(): 
-        flammable = (grid == t) & (c > 0)
-        grid[flammable] = Tile.ignite(t)
+        alight = (grid == t) & (c > 0) & (c < flammability[t])
+        grid[alight] = Tile.ignite(t)
     
     # put the lakes back
     grid[lake] = Tile.LAKE
@@ -106,8 +106,7 @@ def setup(args):
 
     make_other_colours()
     config.state_colors = list(colours.values())
-    config.num_generations = 2
-    config.grid_dims = (5,5)
+
 
     # ----------------------------------------------------------------------
 
