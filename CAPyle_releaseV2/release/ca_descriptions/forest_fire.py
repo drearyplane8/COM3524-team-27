@@ -15,7 +15,6 @@ sys.path.append(main_dir_loc + 'capyle/guicomponents')
 from capyle.ca import Grid2D, Neighbourhood, CAConfig, randomise2d
 import capyle.utils as utils
 import numpy as np
-
 import random
 from enum import IntEnum
 
@@ -41,9 +40,7 @@ class Tile(IntEnum):
     def extinguish(s):
         return s + 3
 
-    def flammable(t):
-        return t == CHAPARREL or t == FOREST or t == SCRUB
-
+# need not be a dict but it makes it more explicit
 colours = {
         Tile.LAKE              : (0.239, 0.69, 0.941),
         Tile.CHAPARREL         : (0.749, 0.749, 0),
@@ -96,8 +93,6 @@ def transition_func(grid, neighbourstates, neighbourcounts):
     for (t, e) in extinguishing_factor.items():
         extinguish = (grid == t) & (extinguish_noise < e)
         grid[extinguish] = Tile.extinguish(t)
-        
-
     
     # put the lakes back
     grid[lake] = Tile.LAKE
@@ -121,9 +116,8 @@ def setup(args):
 #                           (0.66,0,0), (0, 0.66, 0), (0, 0, 0.66),
 #                            (1, 0, 0), (0, 1, 0), (0, 0, 1)] # RGB colours are easiest to distinguish
     config.wrap = False
-    config.grid_dims = (20, 20)
 
-    config.set_initial_grid(np.asarray([[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4],
+    map = np.asarray([[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4],
                                         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                                         [1,1,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1],
                                         [1,1,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -142,7 +136,9 @@ def setup(args):
                                         [1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1],
                                         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                                         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]])) 
+                                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]])
+    config.set_initial_grid(map)
+    config.set_grid_dims(np.shape(map))
     # ----------------------------------------------------------------------
 
     if len(args) == 2:
