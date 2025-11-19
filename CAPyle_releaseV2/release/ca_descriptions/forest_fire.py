@@ -38,6 +38,9 @@ class Tile(IntEnum):
     def ignite(s):
         return s + 3
 
+    def extinguish(s):
+        return s + 3
+
     def flammable(t):
         return t == CHAPARREL or t == FOREST or t == SCRUB
 
@@ -72,7 +75,7 @@ def make_other_colours():
         colours[Tile(i+6)] = tuple([c * 0.25 for c in colours[Tile(i)]])
 
 def transition_func(grid, neighbourstates, neighbourcounts):
-    
+
     # mask 1: lake tiles remain lake
     # we are going to note down the lake tiles at the start so we dont have to worry about them while we BURN
     lake = (grid == Tile.LAKE)
@@ -87,6 +90,14 @@ def transition_func(grid, neighbourstates, neighbourcounts):
     for (t, f) in flammability.items(): 
         alight = (grid == t) & (c > 0) & (c < flammability[t])
         grid[alight] = Tile.ignite(t)
+
+    # now basically do the same thing for on fire tiles
+    extinguish_noise = np.random.rand(*grid.shape) # if we're having performance issues, we could consider using the same noise as for burning
+    for (t, e) in extinguishing_factor.items():
+        extinguish = (grid == t) & (extinguish_noise < e)
+        grid[extinguish] = Tile.extinguish(t)
+        
+
     
     # put the lakes back
     grid[lake] = Tile.LAKE
@@ -105,8 +116,11 @@ def setup(args):
     # ---- Override the defaults below (these may be changed at anytime) ----
 
     make_other_colours()
-    config.state_colors = list(colours.values())
-
+#    config.state_colors = list(colours.values())
+    config.state_colors = [(0,0,0),
+                            (0.33, 0, 0), (0, 0.33, 0),  (0,0,0.33),
+                            (0.66,0,0), (0, 0.66, 0), (0, 0, 0.66),
+                            (1, 0, 0), (0, 1, 0), (0, 0, 1)]
 
     # ----------------------------------------------------------------------
 
