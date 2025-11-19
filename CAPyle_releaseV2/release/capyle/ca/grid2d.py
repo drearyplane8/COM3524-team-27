@@ -161,12 +161,6 @@ class Grid2D(Grid):
         # return n arrays where n is the number of states
         nc = self.count_neighbours(ns)
 
-        print(f"Before transition function: {self.n=}")
-        self.n += 1
-        print(f"{ns=}\n {nc=}")
-        print(f"{self.grid=}")
-        print(f"{self.wrapping_grid=}")
-
         # apply the user's transition function
         # passing in the states and counts to allow complex rules
         # if the user supplied any addition arguments, pass them here
