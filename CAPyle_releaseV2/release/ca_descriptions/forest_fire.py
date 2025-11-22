@@ -75,13 +75,10 @@ extinguishing_factor = {
 
 def transition_func(grid, neighbourstates, neighbourcounts):
 
-    # mask 1: lake tiles remain lake
-    # we are going to note down the lake tiles at the start so we dont have to worry about them while we BURN
+    # Record lake tiles
     lake = (grid == Tile.LAKE)
 
-
-
-    # now basically do the same thing for on fire tiles
+    # Extinguish burning tiles according to their type
     extinguish_noise = np.random.rand(*grid.shape) # if we're having performance issues, we could consider using the same noise as for burning
     for (t, e) in extinguishing_factor.items():
         extinguish = (grid == t) & (extinguish_noise < e)
@@ -89,7 +86,8 @@ def transition_func(grid, neighbourstates, neighbourcounts):
 
 
 
-    # set tiles on fire
+    # Light tiles on fire according to their burning neighbour #, type
+
     # get a map of how many burning neighbours each grid square has
     burning_neighbour_count = neighbourcounts[Tile.CHAPARREL_BURNING] + neighbourcounts[Tile.FOREST_BURNING] + neighbourcounts[Tile.SCRUB_BURNING]
     # multiply each tile by a random 0..1, 
@@ -97,12 +95,10 @@ def transition_func(grid, neighbourstates, neighbourcounts):
 
     # all tiles where the resulting value is below the threshold probability are to be set on fire
     for (t, f) in flammability.items(): 
-        alight = (grid == t) & (c > 0) & (c < flammability[t])
+        alight = (grid == t) & (c > 0) & (c < flammability[t]) # make sure tiles with 0 burning neighbours are not lit
         grid[alight] = Tile.ignite(t)
 
-    
-
-    # put the lakes back        
+    # Put the lakes back        
     grid[lake] = Tile.LAKE
     return grid
 
@@ -111,20 +107,23 @@ def scale(map, sf):
     return map.repeat(sf, axis=0).repeat(sf, axis=1)
 
 def setup(args):
+    # pre-given stuff - dont change
     config_path = args[0]
     config = utils.load(config_path)
-    # ---THE CA MUST BE RELOADED IN THE GUI IF ANY OF THE BELOW ARE CHANGED---
+
+    # basic config
     config.title = "🔥🔥🔥"
     config.dimensions = 2
+
+    #set states and colours
     config.states = tuple([s.value for s in Tile])
-    # ------------------------------------------------------------------------
-
-    # ---- Override the defaults below (these may be changed at anytime) ----
-
     config.state_colors = list(colours.values())
+    
+    # disable wrap 
     config.wrap = False
 
-    sf = 8
+    # set grid and appropriate size
+    sf = 8 
     config.set_initial_grid(scale(map.map, sf))
     shape = np.shape(map.map)
     config.set_grid_dims(
@@ -135,9 +134,7 @@ def setup(args):
     if len(args) == 2:
         config.save()
         sys.exit()
-
-    
-
+        
     return config
 
 
