@@ -79,6 +79,16 @@ def transition_func(grid, neighbourstates, neighbourcounts):
     # we are going to note down the lake tiles at the start so we dont have to worry about them while we BURN
     lake = (grid == Tile.LAKE)
 
+
+
+    # now basically do the same thing for on fire tiles
+    extinguish_noise = np.random.rand(*grid.shape) # if we're having performance issues, we could consider using the same noise as for burning
+    for (t, e) in extinguishing_factor.items():
+        extinguish = (grid == t) & (extinguish_noise < e)
+        grid[extinguish] = Tile.extinguish(t)
+
+        
+
     # set tiles on fire
     # get a map of how many burning neighbours each grid square has
     burning_neighbour_count = neighbourcounts[Tile.CHAPARREL_BURNING] + neighbourcounts[Tile.FOREST_BURNING] + neighbourcounts[Tile.SCRUB_BURNING]
@@ -90,11 +100,7 @@ def transition_func(grid, neighbourstates, neighbourcounts):
         alight = (grid == t) & (c > 0) & (c < flammability[t])
         grid[alight] = Tile.ignite(t)
 
-    # now basically do the same thing for on fire tiles
-    extinguish_noise = np.random.rand(*grid.shape) # if we're having performance issues, we could consider using the same noise as for burning
-    for (t, e) in extinguishing_factor.items():
-        extinguish = (grid == t) & (extinguish_noise < e)
-        grid[extinguish] = Tile.extinguish(t)
+    
 
     # put the lakes back        
     grid[lake] = Tile.LAKE
