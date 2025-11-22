@@ -36,11 +36,15 @@ class Tile(IntEnum):
     FOREST_BURNT      = 8
     SCRUB_BURNT       = 9
 
-    def ignite(s):
-        return s + 3
+    TOWN = 10
+    TOWN_BURNING = 11
+    TOWN_BURNT = 12
+
+    def ignite(s): # hate it
+        return s + 3 if s != 10 else s + 1
 
     def extinguish(s):
-        return s + 3
+        return s + 3 if s != 10 else s + 1
 
 # need not be a dict but it makes it more explicit
 colours = {
@@ -53,7 +57,10 @@ colours = {
         Tile.SCRUB_BURNING     : (1, 0.753, 0),
         Tile.CHAPARREL_BURNT   : (0.633, 0.576, 0.525),
         Tile.FOREST_BURNT      : (0.267, 0.271, 0.259),
-        Tile.SCRUB_BURNT       : (0.435, 0.4, 0.294)
+        Tile.SCRUB_BURNT       : (0.435, 0.4, 0.294),
+        Tile.TOWN              : (0,0,0),
+        Tile.TOWN_BURNING      : (1,0,0),
+        Tile.TOWN_BURNT        : (0.5, 0.5, 0.5)
     }
 
 # flammability affects how easily a terrain type catches
@@ -61,7 +68,8 @@ colours = {
 flammability = {
     Tile.CHAPARREL  : 0.2,
     Tile.FOREST     : 0.025,
-    Tile.SCRUB      : 1
+    Tile.SCRUB      : 1,
+    Tile.TOWN       : 1
 }    
 
 # extinguishing factor affects how long a terrain type burns
@@ -69,7 +77,8 @@ flammability = {
 extinguishing_factor = {
     Tile.CHAPARREL_BURNING : 1/48,
     Tile.FOREST_BURNING    : 1/90,
-    Tile.SCRUB_BURNING     : 0.5
+    Tile.SCRUB_BURNING     : 0.5,
+    Tile.TOWN_BURNING      : 0.5
 }
     
 
@@ -89,7 +98,7 @@ def transition_func(grid, neighbourstates, neighbourcounts):
     # Light tiles on fire according to their burning neighbour #, type
 
     # get a map of how many burning neighbours each grid square has
-    burning_neighbour_count = neighbourcounts[Tile.CHAPARREL_BURNING] + neighbourcounts[Tile.FOREST_BURNING] + neighbourcounts[Tile.SCRUB_BURNING]
+    burning_neighbour_count = neighbourcounts[Tile.CHAPARREL_BURNING] + neighbourcounts[Tile.FOREST_BURNING] + neighbourcounts[Tile.SCRUB_BURNING] + neighbourcounts[Tile.TOWN_BURNING]
     # multiply each tile by a random 0..1, 
     c = np.multiply(burning_neighbour_count, np.random.rand(*grid.shape))
 
@@ -125,16 +134,19 @@ def setup(args):
     # set fire starting points:
     POWER_PLANT = True
     INCINERATOR = True
-    TOWN = False
+    TOWN = True
 
     # set grid and appropriate size
-    sf = 8 
+    sf = 4 
     scaled_map = scale(map.map, sf)
 
     if INCINERATOR:
         scaled_map[0][-1] = Tile.ignite(scaled_map[0][-1]) 
     if POWER_PLANT:
         scaled_map[0][2 * sf] = Tile.ignite(scaled_map[0][2 * sf])
+    if TOWN and sf >= 2 and sf % 2 == 0: # sf necessary to represent town as an area target
+        scaled_map[-2*sf : int(-1.5*sf), int(5.5*sf) : 6*sf] = Tile.TOWN
+
 
     shape = np.shape(map.map)
     config.set_initial_grid(scaled_map)
