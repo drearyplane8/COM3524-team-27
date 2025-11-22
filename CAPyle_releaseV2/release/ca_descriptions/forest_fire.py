@@ -18,6 +18,8 @@ import numpy as np
 import random
 from enum import IntEnum
 
+import map
+
 # IntEnums compare to Ints, i.e. Tile.LAKE == 0
 class Tile(IntEnum):
     LAKE = 0
@@ -93,11 +95,14 @@ def transition_func(grid, neighbourstates, neighbourcounts):
     for (t, e) in extinguishing_factor.items():
         extinguish = (grid == t) & (extinguish_noise < e)
         grid[extinguish] = Tile.extinguish(t)
-    
-    # put the lakes back
+
+    # put the lakes back        
     grid[lake] = Tile.LAKE
     return grid
 
+
+def scale(map, sf):
+    return map.repeat(sf, axis=0).repeat(sf, axis=1)
 
 def setup(args):
     config_path = args[0]
@@ -111,34 +116,14 @@ def setup(args):
     # ---- Override the defaults below (these may be changed at anytime) ----
 
     config.state_colors = list(colours.values())
-#    config.state_colors = [(0,0,0), 
-#                            (0.33, 0, 0), (0, 0.33, 0),  (0,0,0.33),
-#                           (0.66,0,0), (0, 0.66, 0), (0, 0, 0.66),
-#                            (1, 0, 0), (0, 1, 0), (0, 0, 1)] # RGB colours are easiest to distinguish
     config.wrap = False
 
-    map = np.asarray([[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4],
-                                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                                        [1,1,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1],
-                                        [1,1,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                                        [1,1,2,2,2,1,1,0,1,1,1,1,1,1,3,1,1,1,1,1],
-                                        [1,1,2,2,2,1,1,0,1,1,1,1,1,1,3,1,1,1,1,1],
-                                        [1,1,2,2,2,1,1,0,1,1,1,1,1,1,3,1,1,1,1,1],
-                                        [1,1,2,2,2,1,1,0,1,1,1,1,1,1,3,1,1,1,1,1],
-                                        [1,1,2,2,2,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1],
-                                        [1,1,2,2,2,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1],
-                                        [1,1,2,2,2,2,2,2,2,2,1,1,1,1,3,1,1,1,1,1],
-                                        [1,1,2,2,2,2,2,2,2,2,1,1,1,1,3,1,1,1,1,1],
-                                        [1,1,2,2,2,2,2,2,2,2,1,1,1,1,3,1,1,1,1,1],
-                                        [1,1,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1],
-                                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                                        [1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1],
-                                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]])
-    config.set_initial_grid(map)
-    config.set_grid_dims(np.shape(map))
+    sf = 8
+    config.set_initial_grid(scale(map.map, sf))
+    shape = np.shape(map.map)
+    config.set_grid_dims(
+        (shape[0] * sf, shape[1]* sf))
+
     # ----------------------------------------------------------------------
 
     if len(args) == 2:
