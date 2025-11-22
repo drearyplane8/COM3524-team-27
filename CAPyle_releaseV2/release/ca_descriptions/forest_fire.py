@@ -122,10 +122,22 @@ def setup(args):
     # disable wrap 
     config.wrap = False
 
+    # set fire starting points:
+    POWER_PLANT = True
+    INCINERATOR = True
+    TOWN = False
+
     # set grid and appropriate size
     sf = 8 
-    config.set_initial_grid(scale(map.map, sf))
+    scaled_map = scale(map.map, sf)
+
+    if INCINERATOR:
+        scaled_map[0][-1] = Tile.ignite(scaled_map[0][-1]) 
+    if POWER_PLANT:
+        scaled_map[0][2 * sf] = Tile.ignite(scaled_map[0][2 * sf])
+
     shape = np.shape(map.map)
+    config.set_initial_grid(scaled_map)
     config.set_grid_dims(
         (shape[0] * sf, shape[1]* sf))
 
