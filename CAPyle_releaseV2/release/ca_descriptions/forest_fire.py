@@ -60,16 +60,16 @@ colours = {
 # higher is more flammable
 flammability = {
     Tile.CHAPARREL  : 0.2,
-    Tile.FOREST     : 0.05,
+    Tile.FOREST     : 0.025,
     Tile.SCRUB      : 1
 }    
 
 # extinguishing factor affects how long a terrain type burns
 # higher is more likely to go out
 extinguishing_factor = {
-    Tile.CHAPARREL_BURNING : 1/24,
-    Tile.FOREST_BURNING    : 1/72,
-    Tile.SCRUB_BURNING     : 1
+    Tile.CHAPARREL_BURNING : 1/48,
+    Tile.FOREST_BURNING    : 1/90,
+    Tile.SCRUB_BURNING     : 0.5
 }
     
 
@@ -87,7 +87,7 @@ def transition_func(grid, neighbourstates, neighbourcounts):
         extinguish = (grid == t) & (extinguish_noise < e)
         grid[extinguish] = Tile.extinguish(t)
 
-        
+
 
     # set tiles on fire
     # get a map of how many burning neighbours each grid square has
