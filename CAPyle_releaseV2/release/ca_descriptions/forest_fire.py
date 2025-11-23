@@ -36,15 +36,19 @@ class Tile(IntEnum):
     FOREST_BURNT      = 8
     SCRUB_BURNT       = 9
 
-    TOWN = 10
-    TOWN_BURNING = 11
-    TOWN_BURNT = 12
+    TOWN              = 10
+    DUMMY             = 11
+    DUMMY_2           = 12
+    TOWN_BURNING      = 13
+    DUMMY_3           = 14
+    DUMMY_4           = 15
+    TOWN_BURNT        = 16
 
-    def ignite(s): # hate it
-        return s + 3 if s != 10 else s + 1
+    def ignite(s):
+        return s + 3 
 
     def extinguish(s):
-        return s + 3 if s != 10 else s + 1
+        return s + 3 
 
 # need not be a dict but it makes it more explicit
 colours = {
@@ -59,7 +63,11 @@ colours = {
         Tile.FOREST_BURNT      : (0.267, 0.271, 0.259),
         Tile.SCRUB_BURNT       : (0.435, 0.4, 0.294),
         Tile.TOWN              : (0,0,0),
+        11                     : (1,1,1),
+        12                     : (1,1,1),
         Tile.TOWN_BURNING      : (1,0,0),
+        14                     : (1,1,1),
+        15                     : (1,1,1),
         Tile.TOWN_BURNT        : (0.5, 0.5, 0.5)
     }
 
