@@ -20,6 +20,16 @@ from enum import IntEnum
 
 import map
 
+class Wind(IntEnum):
+    NW = 0
+    N = 1
+    NE = 2
+    W = 3
+    E = 4
+    SW = 5
+    S = 6
+    SE = 7
+
 # IntEnums compare to Ints, i.e. Tile.LAKE == 0
 class Tile(IntEnum):
     LAKE = 0
@@ -88,7 +98,22 @@ extinguishing_factor = {
     Tile.SCRUB_BURNING     : 0.25,
     Tile.TOWN_BURNING      : 0.25
 }
-    
+
+
+WIND_DIR = Wind.SW
+
+def wind_multiplier(wind_dir, dir):
+    if wind_dir == dir:         # downwind
+        return 2
+    elif wind_dir + dir == 7:   # upwind
+        return 3/4   
+    elif (wind_dir + 3 % 8 == dir) or (wind_dir + 5 % 8 == dir): # partially upwind
+        return 7/8
+    elif (wind_dir + 2 % 8 == dir) or (wind_dir + 4 % 8 == dir): # partially downwind
+        return 6/4
+    else:
+        return 1
+
 
 def transition_func(grid, neighbourstates, neighbourcounts):
 
@@ -101,17 +126,24 @@ def transition_func(grid, neighbourstates, neighbourcounts):
         extinguish = (grid == t) & (extinguish_noise < e)
         grid[extinguish] = Tile.extinguish(t)
 
-
-
-    # Light tiles on fire according to their burning neighbour #, type
-
+    # Light tiles on fire according to their burning neighbour #, type, wind
+    winds = np.ones(grid.shape)
+    for dir, neighbours in enumerate(neighbourstates):
+        np.multiply(
+            winds,
+            np.where(
+                ((neighbours == Tile.CHAPARREL_BURNING) | (neighbours == Tile.FOREST_BURNING) | (neighbours == Tile.SCRUB_BURNING)), wind_multiplier(WIND_DIR, dir), 1), out=winds)
+    
     # get a map of how many burning neighbours each grid square has
     burning_neighbour_count = neighbourcounts[Tile.CHAPARREL_BURNING] + neighbourcounts[Tile.FOREST_BURNING] + neighbourcounts[Tile.SCRUB_BURNING] + neighbourcounts[Tile.TOWN_BURNING]
     # multiply each tile by a random 0..1, 
     c = np.multiply(burning_neighbour_count, np.random.rand(*grid.shape))
+    print(f"{winds=}")
+    c = np.divide(c, winds)
+
 
     # all tiles where the resulting value is below the threshold probability are to be set on fire
-    for (t, f) in flammability.items(): 
+    for (t, f) in flammability.items(): # 
         alight = (grid == t) & (c > 0) & (c < flammability[t]) # make sure tiles with 0 burning neighbours are not lit
         grid[alight] = Tile.ignite(t)
 
@@ -143,12 +175,12 @@ def setup(args):
     config.wrap = False
 
     # set fire starting points:
-    POWER_PLANT = True
+    POWER_PLANT = False
     INCINERATOR = True
     TOWN = True
 
     # set grid and appropriate size
-    sf = 8
+    sf = 4
     scaled_map = scale(map.map, sf)
 
     if INCINERATOR:
