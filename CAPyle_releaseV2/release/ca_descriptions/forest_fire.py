@@ -100,7 +100,7 @@ extinguishing_factor = {
 }
 
 
-WIND_DIR = Wind.NE
+WIND_DIR = Wind.W
 WIND_SPEED_MULT = 1
 
 def wind_multiplier(wind_dir, dir):
@@ -108,10 +108,6 @@ def wind_multiplier(wind_dir, dir):
         return 2
     elif wind_dir + dir == 7:   # upwind
         return 3/4   
-    elif (wind_dir + 3 % 8 == dir) or (wind_dir + 5 % 8 == dir): # partially upwind
-        return 7/8
-    elif (wind_dir + 2 % 8 == dir) or (wind_dir + 4 % 8 == dir): # partially downwind
-        return 6/4
     else:
         return 1
 
@@ -180,7 +176,7 @@ def setup(args):
     TOWN = True
 
     # set grid and appropriate size
-    sf = 4
+    sf = 2
     scaled_map = scale(map.map, sf)
 
     if INCINERATOR:
