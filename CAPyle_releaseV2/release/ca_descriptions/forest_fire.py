@@ -100,7 +100,8 @@ extinguishing_factor = {
 }
 
 
-WIND_DIR = Wind.SW
+WIND_DIR = Wind.NE
+WIND_SPEED_MULT = 1
 
 def wind_multiplier(wind_dir, dir):
     if wind_dir == dir:         # downwind
@@ -132,13 +133,12 @@ def transition_func(grid, neighbourstates, neighbourcounts):
         np.multiply(
             winds,
             np.where(
-                ((neighbours == Tile.CHAPARREL_BURNING) | (neighbours == Tile.FOREST_BURNING) | (neighbours == Tile.SCRUB_BURNING)), wind_multiplier(WIND_DIR, dir), 1), out=winds)
+                ((neighbours == Tile.CHAPARREL_BURNING) | (neighbours == Tile.FOREST_BURNING) | (neighbours == Tile.SCRUB_BURNING)), wind_multiplier(WIND_DIR, dir) * WIND_SPEED_MULT, 1), out=winds)
     
     # get a map of how many burning neighbours each grid square has
     burning_neighbour_count = neighbourcounts[Tile.CHAPARREL_BURNING] + neighbourcounts[Tile.FOREST_BURNING] + neighbourcounts[Tile.SCRUB_BURNING] + neighbourcounts[Tile.TOWN_BURNING]
     # multiply each tile by a random 0..1, 
     c = np.multiply(burning_neighbour_count, np.random.rand(*grid.shape))
-    print(f"{winds=}")
     c = np.divide(c, winds)
 
 
