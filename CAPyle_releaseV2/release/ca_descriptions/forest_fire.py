@@ -151,9 +151,6 @@ def transition_func(grid, neighbourstates, neighbourcounts):
 def scale(map, sf):
     return map.repeat(sf, axis=0).repeat(sf, axis=1)
 
-def dmap(dict, f): # map over dict
-    return {k : f(v) for k, v in dict.items()}
-
 def setup(args):
     # pre-given stuff - dont change
     config_path = args[0]
@@ -185,13 +182,6 @@ def setup(args):
         scaled_map[0][2 * sf] = Tile.ignite(scaled_map[0][2 * sf])
     if TOWN and sf >= 2 and sf % 2 == 0: # sf necessary to represent town as an area target
         scaled_map[-2*sf : int(-1.5*sf), int(5.5*sf) : 6*sf] = Tile.TOWN
-
-    # scale probabilities to grid size 
-#    f = lambda x : x * sf
-#    global flammability
-#    flammability = dmap(flammability, f)
-#    global extinguishing_factor 
-#    extinguishing_factor = dmap(extinguishing_factor, f)
 
     shape = np.shape(map.map)
     config.set_initial_grid(scaled_map)
