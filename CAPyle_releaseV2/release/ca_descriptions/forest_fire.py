@@ -99,10 +99,6 @@ extinguishing_factor = {
     Tile.TOWN_BURNING      : 0.25
 }
 
-
-WIND_DIR = Wind.W
-WIND_SPEED_MULT = 1
-
 def wind_multiplier(wind_dir, dir):
     if wind_dir == dir:         # downwind
         return 2
@@ -111,6 +107,8 @@ def wind_multiplier(wind_dir, dir):
     else:
         return 1
 
+WIND_DIR = Wind.W
+WIND_SPEED_MULT = 1
 
 def transition_func(grid, neighbourstates, neighbourcounts):
 
