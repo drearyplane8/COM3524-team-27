@@ -1,4 +1,4 @@
-# COM 3524 – System Tools
+# Forest Fire Cellular Automaton — Team 27
 
 This repository is a fork of the original COM3524 repo, with all the other tools removed, and our forest fire CA added.
 
@@ -18,6 +18,7 @@ Run `python run_tool.py` in the repository root. This will not open a menu; it w
 
 Only the # of generations is modifiable in the GUI — dimensions and grid are both set in the setup function. We recommend a limit of 200 generations at `sf = 1`, 300 at `sf = 2`, and 500 at `sf = 4` for reasonable runtimes, but there are no hard limits.
 
+It should not be necessary to use Docker if you have Python installed locally, and we have not tested Docker use, but since it is a derivative of the COM3524 repository it may still work.
 
 ## Changing Parameters
 
